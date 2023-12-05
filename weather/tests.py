@@ -37,6 +37,12 @@ class WeatherAPITests(TestCase):
 
 
 class TelegramBotTest(TestCase):
+    """
+        Класс-хелпер для тестирования телеграм бота.
+
+        Реализует в себе следующий функционал:
+        - test_handle_command: имититация методов start_polling и idle. Проверяет handle и ожидаемое сообщение в консоли
+    """
     def setUp(self):
         self.mes = Command.message
 
