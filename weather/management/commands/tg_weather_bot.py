@@ -11,11 +11,11 @@ telegram_bot_token = settings.TELEGRAM_BOT_TOKEN
 
 
 class Command(BaseCommand):
-    help = f'Запущен бот {telegram_bot_name}'
+    message = f'Запущен бот {telegram_bot_name}'
 
     def handle(self, *args, **options):
         try:
-            print(self.help)
+            print(self.message)
 
             updater = Updater(token=telegram_bot_token, use_context=True)
             bot = updater.bot

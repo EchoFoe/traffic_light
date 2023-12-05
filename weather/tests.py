@@ -1,8 +1,13 @@
 from django.conf import settings
 from django.test import TestCase, override_settings
+from django.core.management import call_command
+from unittest.mock import patch
+
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
+
 from .views import WeatherAPIView
+from .management.commands.tg_weather_bot import Command
 
 
 class WeatherAPITests(TestCase):
@@ -29,3 +34,18 @@ class WeatherAPITests(TestCase):
             self.assertIn('temperature', weather_response.data)
             self.assertIn('pressure', weather_response.data)
             self.assertIn('wind_speed', weather_response.data)
+
+
+class TelegramBotTest(TestCase):
+    def setUp(self):
+        self.mes = Command.message
+
+    @patch('telegram.ext.Updater.start_polling')
+    @patch('telegram.ext.Updater.idle')
+    def test_handle_command(self, mock_start_polling, mock_idle):
+        with patch('builtins.print') as mock_print:
+            call_command('tg_weather_bot')
+
+        mock_print.assert_called_with(f'{self.mes}')
+        mock_start_polling.assert_called_once()
+        mock_idle.assert_called_once()
