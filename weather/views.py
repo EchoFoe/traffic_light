@@ -6,9 +6,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-
 from .utils import get_yandex_geocode_data
 from .serializers import WeatherSerializer
 
@@ -16,8 +13,6 @@ weather_api_key = settings.WEATHER_API_KEY
 geocode_api_key = settings.GEOCODE_API_KEY
 ya_geocode_maps_url = settings.YA_GEOCODE_MAPS_URL
 weather_api_url = settings.WEATHER_API_URL
-telegram_bot_token = settings.TELEGRAM_BOT_TOKEN
-telegram_bot_name = settings.TELEGRAM_BOT_NAME
 
 
 class RequestHelper:
@@ -88,46 +83,3 @@ class WeatherAPIView(APIView):
         except requests.RequestException as e:
             error_message = {'error': f'Ошибка при получении данных о погоде: {str(e)}'}
             return Response(error_message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-def start(update: Update, context: CallbackContext):
-    keyboard = [['Узнать прогноз погоды']]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
-    update.message.reply_text(
-        f'Добро пожаловать в {telegram_bot_name}! Нажмите кнопку, чтобы узнать прогноз погоды.',
-        reply_markup=reply_markup
-    )
-
-
-def weather_button(update: Update, context: CallbackContext):
-    update.message.reply_text('Пожалуйста, введите название города, чтобы получить прогноз погоды.')
-
-
-def weather_message(update: Update, context: CallbackContext):
-    city_name = update.message.text.strip()
-    # Формирование фиктивного объекта запроса
-    request = RequestHelper({'city': city_name})
-    weather_api = WeatherAPIView()
-    response = weather_api.get(request)
-
-    # Формирование сообщения для тг-бота
-    mes = (
-        f"Погода в {city_name.capitalize()}:\n"
-        f"Температура: {response.data['temperature']}°C\n"
-        f"Давление: {response.data['pressure']} мм. рт. ст.\n"
-        f"Скорость ветра: {response.data['wind_speed']} м/с"
-    )
-
-    update.message.reply_text(mes)
-
-
-# Исключаю проверку бота, так как ТЗ
-if not settings.TESTING:
-    updater = Updater(token=telegram_bot_token, use_context=True)
-    bot = updater.bot
-    updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(MessageHandler(Filters.regex('^Узнать прогноз погоды$'), weather_button))
-    updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, weather_message))
-    updater.bot.deleteWebhook()
-    updater.start_polling()
-    updater.idle()

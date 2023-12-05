@@ -26,38 +26,24 @@
     python manage.py migrate
     ```
 
-
-4. Запустить daphne:
-    ```
-    daphne traffic_light.asgi:application
-    ```
-
-
-5. Запустить локальный сервер:
+4. Запустить локальный сервер:
     ```
     python manage.py runserver
     ```
+#### Проверить АПИ можно по адресу http://localhost:8000/api/weather/?city=минск
+(запросить можете любой другой город)
 
-6. Запустить тесты:
+
+5. Запустить тесты:
     ```
-    python manage.py test --settings=traffic_light.settings_test
+    python manage.py test
     ```
     
 
 Проект успешно развернут, если все тесты прошли.
-### Проверить АПИ можно по адресу: 
+6. Запустить телеграм бота:
     ```
-    http://localhost:8000/api/weather/?city=минск
-    ``` 
-(запросить можете любой другой город)
-### Найти бота в ТГ можно так:
+    python manage.py tg_weather_bot
     ```
-    https://t.me/l_weather_echo_bot
-    ```
-
-Если тесты не проходят или испытываете трудности по запуску сервера разработки, закомментируйте строки:
-    ```
-    updater.bot.deleteWebhook()
-    updater.start_polling()
-    updater.idle()
-    ``` в weather/views.py
+   
+#### Найти бота в ТГ можно так https://t.me/l_weather_echo_bot
